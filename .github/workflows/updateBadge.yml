@@ -38,7 +38,8 @@ jobs:
       id: git-check
       run: |
         if [ -n "$(git diff)" ]; then
-          echo "Changes detected" >> $GITHUB_ENV
+          echo "Changes detected"
+          echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
         fi
 
     - name: Debug Output
