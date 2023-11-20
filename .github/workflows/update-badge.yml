@@ -23,10 +23,12 @@ jobs:
       id: version
       run: |
         echo "VERSION=$(grep '^version' gradle.properties | cut -d= -f2)" >> $GITHUB_ENV
+        echo "VERSION: ${{ steps.version.outputs.VERSION }}"
 
     - name: Update README Badge
       run: |
         sed -i 's/\(badge\/version-v[0-9.]*-blue\.svg\?style=flat\&logo=java\)/badge\/version-v${{ steps.version.outputs.VERSION }}-blue.svg?style=flat\&logo=java/' README.md
+        cat README.md  # Print README content for debugging
 
     - name: Check if Changes Exist
       id: git-check
