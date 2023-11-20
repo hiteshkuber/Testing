@@ -21,16 +21,20 @@ jobs:
 
     - name: Read Version Number
       id: version
-      run: echo "VERSION=$(grep '^version' gradle.properties | cut -d= -f2)" >> $GITHUB_ENV
+      run: |
+        echo "VERSION=$(grep '^version' gradle.properties | cut -d= -f2)" >> $GITHUB_ENV
 
     - name: Update README Badge
       run: |
         sed -i 's/\(badge\/version-v[0-9.]*-blue\.svg\?style=flat\&logo=java\)/badge\/version-v${{ steps.version.outputs.VERSION }}-blue.svg?style=flat\&logo=java/' README.md
 
+    - name: Check if Changes Exist
+      id: git-check
+      run: |
+        git diff --exit-code || echo "Changes detected" >> $GITHUB_ENV
+
     - name: Commit and Push Changes
+      if: env.GITHUB_ENV contains 'Changes detected'
       run: |
         git config user.name "${{ github.actor }}"
-        git config user.email "${{ github.actor }}@users.noreply.github.com"
-        git add README.md
-        git commit -m "Update version badge [skip ci]"
-        git push
+        git config user.email "${{ github.actor }}@users.n
