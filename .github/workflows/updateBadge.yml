@@ -41,6 +41,9 @@ jobs:
           echo "Changes detected" >> $GITHUB_ENV
         fi
 
+    - name: Debug Output
+      run: echo "CHANGES_DETECTED=${{ env.CHANGES_DETECTED }}"
+
     - name: Commit and Push Changes
       if: env.CHANGES_DETECTED
       run: |
