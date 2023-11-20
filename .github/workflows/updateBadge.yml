@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Display gradle.properties Content
       run: cat gradle.properties
@@ -31,7 +33,7 @@ jobs:
 
     - name: Update README Badge
       run: |
-        sed -i 's/\(badge\/version-v[0-9]\+\.[0-9]\+\.[0-9]\+-blue\.svg?style=flat&logo=java\)/badge\/version-v${{ steps.version.outputs.VERSION }}-blue.svg?style=flat&logo=java/' README.md
+        sed -i 's/\(badge\/version-v[0-9.]*-blue\.svg\?style=flat\&logo=java\)/badge\/version-v${{ steps.version.outputs.VERSION }}-blue.svg?style=flat\&logo=java/' README.md
         cat README.md  # Print README content for debugging
 
     - name: Check if Changes Exist
@@ -56,7 +58,6 @@ jobs:
       run: |
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
-        git remote set-url origin "https://${{ secrets.GITHUB_ACTOR_TOKEN }}@github.com/${{ github.repository }}"
         git add README.md
         git commit -m "Update version badge [skip ci]"
         git push
