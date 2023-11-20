@@ -54,7 +54,8 @@ jobs:
         echo "CHANGES_DETECTED=${{ steps.git-check.outputs.changes_detected }}"
     - name: Debug Token
       run: |
-        echo "Token: ${{ secrets.GITHUB_ACTOR_TOKEN }}"
+        echo "Token 1: ${{ secrets.GITHUB_ACTOR_TOKEN }}"
+        echo "Token 2: ${GITHUB_ACTOR_TOKEN:0:6}"  # Displaying the first 6 characters for verification
       
     - name: Commit and Push Changes
       if: steps.git-check.outputs.changes_detected == 'true'
