@@ -2,75 +2,37 @@ name: Update Version Badge
 
 on:
   push:
-    paths:
-      - 'gradle.properties'
+    branches:
+      - main
 
 jobs:
   update-badge:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Display gradle.properties Content
-      run: cat gradle.properties
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
 
-    - name: Set up Java
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'adopt'
-        java-version: '11'
+      - name: Read Version from gradle.properties
+        id: version
+        run: echo "VERSION=$(grep '^version' gradle.properties | cut -d= -f2)" >> $GITHUB_ENV
 
-    - name: Read Version Number
-      id: version
-      run: |
-        version=$(grep '^version' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
-        echo "VERSION=$version" >> $GITHUB_ENV
-        echo "VERSION: $version"
+      - name: Check for Changes
+        id: git-check
+        run: echo "CHANGES_DETECTED=true"
 
-    - name: Update README Badge
-      run: |
-        sed -i 's/\(badge\/version-v[0-9]\+\(\.[0-9]\+\)\{0,2\}-blue\.svg?style=flat&logo=java\)/badge\/version-v${{ steps.version.outputs.VERSION }}-blue.svg?style=flat&logo=java/' README.md
-        cat README.md  # Print README content for debugging
-
-    - name: Check Repository Status
-      run: |
-        git status
-        git log --oneline -n 5
-        git diff
-
-    - name: Check if Changes Exist
-      id: git-check
-      run: |
-        if git diff --quiet; then
-          echo "No changes detected"
-          echo "::set-output name=changes_detected::false"
-        else
-          echo "Changes detected"
-          echo "::set-output name=changes_detected::true"
-        fi
-        echo "CHANGES_DETECTED=${{ steps.git-check.outputs.changes_detected }}"
-
-    - name: Debug Environment Variables
-      run: env
-
-    - name: Debug Token
-      run: |
-        echo "Token: ${{ secrets.GITHUB_TOKEN }}"
-
-    - name: Debug Output
-      run: |
-        cat $GITHUB_ENV
-        echo "CHANGES_DETECTED=${{ steps.git-check.outputs.changes_detected }}"
-
-    - name: Commit and Push Changes
-      if: steps.git-check.outputs.changes_detected == 'true'
-      run: |
-        git add README.md
-        git config user.email "${{ github.actor }}@users.noreply.github.com"
-        git config user.name "${{ github.actor }}"
-        git commit -m "Update version badge [skip ci]"
-        git push
+      - name: Commit and Push Changes
+        if: steps.git-check.outputs.changes_detected == 'true'
+        env:
+          PAT_TOKEN: ${{ secrets.TRY }}
+        run: |
+          git add README.md
+          git commit -m "Update version badge [skip ci]"
+          git remote add origin_with_token https://${PAT_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git push origin_with_token
