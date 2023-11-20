@@ -70,5 +70,7 @@ jobs:
       if: steps.git-check.outputs.changes_detected == 'true'
       run: |
         git add README.md
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git config user.name "${{ github.actor }}"
         git commit -m "Update version badge [skip ci]"
         git push
