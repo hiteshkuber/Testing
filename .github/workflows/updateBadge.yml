@@ -37,6 +37,7 @@ jobs:
     - name: Check if Changes Exist
       id: git-check
       run: |
+        git status
         if [ -n "$(git diff --name-only)" ]; then
           echo "Changes detected"
           echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
