@@ -52,7 +52,10 @@ jobs:
       run: |
         cat $GITHUB_ENV
         echo "CHANGES_DETECTED=${{ steps.git-check.outputs.changes_detected }}"
-
+    - name: Debug Token
+      run: |
+        echo "Token: ${{ secrets.GITHUB_ACTOR_TOKEN }}"
+      
     - name: Commit and Push Changes
       if: steps.git-check.outputs.changes_detected == 'true'
       run: |
