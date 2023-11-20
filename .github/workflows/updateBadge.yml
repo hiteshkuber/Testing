@@ -50,6 +50,7 @@ jobs:
           echo "No changes detected"
           echo "::set-output name=changes_detected::false"
         fi
+        echo "CHANGES_DETECTED=${{ steps.git-check.outputs.changes_detected }}"
 
     - name: Debug Output
       run: |
