@@ -25,9 +25,9 @@ jobs:
     - name: Read Version Number
       id: version
       run: |
-        grep '^version' gradle.properties || echo "Version not found in gradle.properties"
-        echo "VERSION=$(grep '^version' gradle.properties | cut -d= -f2)" >> $GITHUB_ENV
-        echo "VERSION: ${{ steps.version.outputs.VERSION }}"
+        version=$(grep '^version' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+        echo "VERSION=$version" >> $GITHUB_ENV
+        echo "VERSION: $version"
 
     - name: Update README Badge
       run: |
@@ -37,6 +37,7 @@ jobs:
     - name: Check if Changes Exist
       id: git-check
       run: |
+        git diff
         if [ -n "$(git diff --name-only)" ]; then
           echo "Changes detected"
           echo "changes_detected=true" >> $GITHUB_ENV
@@ -44,6 +45,9 @@ jobs:
           echo "No changes detected"
           echo "changes_detected=false" >> $GITHUB_ENV
         fi
+
+    - name: Debug Output
+      run: echo "CHANGES_DETECTED=${{ env.CHANGES_DETECTED }}"
 
     - name: Commit and Push Changes
       if: env.CHANGES_DETECTED == 'true'
