@@ -57,6 +57,9 @@ jobs:
     - name: Debug Environment Variables
       run: env
 
+    - name: Debug Token
+      run: echo "Token: ${{ secrets.GITHUB_TOKEN }}"
+
     - name: Debug Output
       run: |
         cat $GITHUB_ENV
