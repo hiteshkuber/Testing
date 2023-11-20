@@ -34,25 +34,30 @@ jobs:
         sed -i 's/\(badge\/version-v[0-9.]*-blue\.svg\?style=flat\&logo=java\)/badge\/version-v${{ steps.version.outputs.VERSION }}-blue.svg?style=flat\&logo=java/' README.md
         cat README.md  # Print README content for debugging
 
+    - name: Check Repository Status
+      run: |
+        git status
+        git log --oneline -n 5
+        git diff
+
     - name: Check if Changes Exist
       id: git-check
       run: |
-        git status
         if [ -n "$(git diff --name-only)" ]; then
           echo "Changes detected"
-          echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
+          echo "::set-output name=changes_detected::true"
         else
           echo "No changes detected"
-          export CHANGES_DETECTED=false
+          echo "::set-output name=changes_detected::false"
         fi
 
     - name: Debug Output
       run: |
         cat $GITHUB_ENV
-        echo "CHANGES_DETECTED=${{ env.CHANGES_DETECTED }}"
+        echo "CHANGES_DETECTED=${{ steps.git-check.outputs.changes_detected }}"
 
     - name: Commit and Push Changes
-      if: env.CHANGES_DETECTED == 'true'
+      if: steps.git-check.outputs.changes_detected == 'true'
       run: |
         git config user.name "${{ github.actor }}"
         git config user.email "${{ github.actor }}@users.noreply.github.com"
